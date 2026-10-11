@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-10-11T04:02:04.340Z",
+  "createdAt": "2026-10-11T04:04:29.617Z",
   "sourceType": "first-party-whitelist-export",
   "privateConfigIncluded": false,
   "privateStateIncluded": false,
@@ -170,8 +170,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 7965,
-      "sha256": "c5f6f2b582442893ecf5b0f58779e841dafba6b8001806af57ffd31ca9aab332"
+      "bytes": 7988,
+      "sha256": "09f156bf2551c898ee23eb45f39b083d0319c252587418e9570a4a98a1bc29bd"
     },
     {
       "path": "robot-runtime.example.json",
