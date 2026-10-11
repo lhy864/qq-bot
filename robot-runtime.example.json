@@ -1,0 +1,8 @@
+{
+  "qqExecutable": "",
+  "dshExecutable": "",
+  "snowlumaHome": "",
+  "snowlumaLauncher": "",
+  "requestTimeoutMs": 2500,
+  "startupTimeoutMs": 90000
+}

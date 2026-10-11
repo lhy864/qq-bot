@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-labelledby="title desc">
+  <title id="title">小鲸鱼 QQ 机器人</title>
+  <desc id="desc">蓝色鲸鱼和聊天气泡。角色、记忆、兴趣与日常，在同一个控制台里。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eff5ff"/><stop offset="1" stop-color="#eefaf8"/></linearGradient>
+    <linearGradient id="whale" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5878fa"/><stop offset="1" stop-color="#355be0"/></linearGradient>
+  </defs>
+  <rect x="1" y="1" width="1198" height="318" rx="26" fill="url(#bg)" stroke="#dce6f5"/>
+  <path d="M1 252 Q160 200 330 256 T650 260 T980 244 T1199 250 V292 Q1199 319 1172 319 H28 Q1 319 1 292Z" fill="#dceafc" opacity=".65"/>
+  <g font-family="'Microsoft YaHei','Noto Sans CJK SC',Arial,sans-serif">
+    <text x="66" y="72" fill="#466491" font-size="15" font-weight="700" letter-spacing="3">QQ BOT / 小鲸鱼</text>
+    <text x="63" y="146" fill="#21334e" font-size="48" font-weight="700">给聊天一个会接续的日常</text>
+    <text x="66" y="193" fill="#526988" font-size="20">角色、记忆、兴趣与日常，在同一个控制台里。</text>
+    <rect x="66" y="221" width="94" height="30" rx="15" fill="#fff"/><text x="113" y="241" text-anchor="middle" fill="#4168ad" font-size="13">SnowLuma</text>
+    <rect x="171" y="221" width="68" height="30" rx="15" fill="#fff"/><text x="205" y="241" text-anchor="middle" fill="#4168ad" font-size="13">DSH</text>
+    <rect x="250" y="221" width="100" height="30" rx="15" fill="#fff"/><text x="300" y="241" text-anchor="middle" fill="#4168ad" font-size="13">本机控制台</text>
+  </g>
+  <g transform="translate(841 64)">
+    <rect x="47" y="0" width="194" height="68" rx="20" fill="#fff" stroke="#cddcf6"/>
+    <path d="M74 64 L70 80 L98 65" fill="#fff" stroke="#cddcf6" stroke-linejoin="round"/>
+    <circle cx="103" cy="34" r="5" fill="#748fe7"/><circle cx="144" cy="34" r="5" fill="#748fe7"/><circle cx="185" cy="34" r="5" fill="#748fe7"/>
+    <path d="M221 118 Q239 78 274 91 Q269 122 244 137 Q277 143 280 167 Q247 185 221 158" fill="url(#whale)"/>
+    <path d="M17 133 C17 91 76 77 126 89 C163 98 184 127 221 125 L232 146 C205 185 169 207 107 208 C52 209 17 183 17 133Z" fill="url(#whale)"/>
+    <path d="M25 158 C78 196 153 192 223 152 C198 189 163 209 108 209 C69 209 35 190 25 158Z" fill="#a8c8ff"/>
+    <path d="M111 154 Q116 190 155 184 Q158 164 145 144Z" fill="#3156ce"/>
+    <circle cx="54" cy="126" r="5" fill="#1f3355"/>
+    <path d="M47 145 Q57 154 69 144" fill="none" stroke="#1f3355" stroke-width="3" stroke-linecap="round"/>
+    <path d="M81 84 L81 52 M78 61 Q60 53 56 39 M84 61 Q103 48 104 35" fill="none" stroke="#7cbadc" stroke-width="7" stroke-linecap="round"/>
+  </g>
+</svg>

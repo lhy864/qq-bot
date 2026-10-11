@@ -1,0 +1,3 @@
+# Maintenance
+
+Read README.md, docs/ARCHITECTURE.md, docs/VALIDATION.md and SECURITY.md before editing. Keep source, model behavior and the loaded process version distinct. Work in isolated fixtures first. Never send real QQ messages or change live DSH settings as part of offline tests. Preserve local config, roles and state; snapshot code and quiesce writers before deployment. Do not merge people by display name. Do not remove guard tool names merely to pass installed-version compatibility checks. Run npm run test:portable and relevant browser checks; npm run test:review additionally checks the installed DSH tool registry. Report unresolved failures and actual deployment status. Keep credentials, private conversations and local review artifacts out of Git.

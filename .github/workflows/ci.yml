@@ -1,0 +1,19 @@
+name: Isolated engineering checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  portable:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts --legacy-peer-deps
+      - run: node scripts/patch-snowluma-sdk.mjs
+      - run: npm run release:check
+      - run: npm run test:portable
