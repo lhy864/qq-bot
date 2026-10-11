@@ -1,10 +1,23 @@
 {
-  "createdAt": "2026-10-11T04:07:23.556Z",
-  "sourceType": "first-party-whitelist-export",
+  "createdAt": "2026-10-11T08:28:27.995Z",
+  "sourceType": "reviewed-incremental-source-sync",
+  "sourceVersion": "2026-10-11-continuity",
   "privateConfigIncluded": false,
   "privateStateIncluded": false,
   "knownPrivateValueMatches": 0,
+  "validationScope": "Current source export local isolated tests; remote Actions result is commit-specific.",
   "validation": {
+    "portableEngineeringGroups": 41,
+    "portableEngineeringPassed": 41,
+    "focusedTopLevel": 36,
+    "tokenEconomyInternal": 36,
+    "actualDshModelRounds": 4,
+    "fullInstalledCompatibility": "41/42; pre-existing DSH tool-name compatibility failure retained",
+    "knownPrivateValueMatches": 0,
+    "reviewedEngineeringMatchesFormalAfterWhitespaceNormalization": true
+  },
+  "previousValidation": {
+    "sourceCreatedAt": "2026-10-11T04:07:23.556Z",
     "freshInstall": true,
     "portableEngineeringGroups": 40,
     "browserChecks": 38,
@@ -50,8 +63,8 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "bytes": 2407,
-      "sha256": "f142f4d952a6402c2eb0f54c771f0fa610f6e1f132fe6b7743f8599f14e98ab3"
+      "bytes": 3203,
+      "sha256": "9bd7d26c83ef84a32e8ad87d5f8fa202409b61684cd09e6d0e137901be856349"
     },
     {
       "path": "docs/assets/console-interests.jpg",
@@ -70,13 +83,18 @@
     },
     {
       "path": "docs/FUNCTIONS.md",
-      "bytes": 2745,
-      "sha256": "110577bd63d208572cf534cc0bbdb75a22cfce18c2fdacd743a14ba957a55e97"
+      "bytes": 3038,
+      "sha256": "c8a7ad57abe98c65a1356e8b7ea29822032f9daa5a3c87fe766349e34d6333c2"
+    },
+    {
+      "path": "docs/updates/2026-10-11-continuity.md",
+      "bytes": 3175,
+      "sha256": "87c21893f97d576f8b7bb5026fd3419465ac917f309c8969079c62f5c7e52d51"
     },
     {
       "path": "docs/VALIDATION.md",
-      "bytes": 4057,
-      "sha256": "bc91e2f597d191e050d9905b294f6ddcd69b546489a1ce459971d5669997f44e"
+      "bytes": 5143,
+      "sha256": "d8ccbcec1e772ac9394a089c76a7540b087a454975b347a525fcdf63714b0039"
     },
     {
       "path": "dsh/agent-presets/qq-chat-v2/agent.cordis.yml",
@@ -165,13 +183,13 @@
     },
     {
       "path": "README.en.md",
-      "bytes": 2439,
-      "sha256": "efbbf9bbb9024d880ae90c8bde488d9747e6d011247c136d1de87c056d5e39ca"
+      "bytes": 2833,
+      "sha256": "1c40036121647a5026aa4091cce1cff011ef3c33cda69e0011b337d46db23c5a"
     },
     {
       "path": "README.md",
-      "bytes": 8264,
-      "sha256": "f9dce919d8b5c3d26eaaebfc400f4c87c78b6bf0f7a7b5fc6b716a9ebc12aac6"
+      "bytes": 8631,
+      "sha256": "08f3f676a7113de8f4490420de67e3e45083e258396215a4f3d86e0fe65d83a2"
     },
     {
       "path": "robot-runtime.example.json",
@@ -185,8 +203,8 @@
     },
     {
       "path": "scripts/audit-bridge-harness.mjs",
-      "bytes": 13137,
-      "sha256": "96c063be6e23fa2ef1b29199a65120bcf6011b4c9cd54e4d3724582f5cb5dd2d"
+      "bytes": 13297,
+      "sha256": "2d3623ead8575d65d013f49f4a628a22ca243739b313816e596dbe95b5675486"
     },
     {
       "path": "scripts/build-agent-preset-patches.mjs",
@@ -434,6 +452,11 @@
       "sha256": "382288c59e03a2d9ced89750224ba27dc591749f9a75cb22ab5ba04f425829e9"
     },
     {
+      "path": "scripts/test-conversation-evidence.mjs",
+      "bytes": 7138,
+      "sha256": "8436a5bf14502780ad22d4be4833ae39510cb4f48928cdc3d2da814e54290fde"
+    },
+    {
       "path": "scripts/test-conversation-quality.mjs",
       "bytes": 27783,
       "sha256": "bad2f63d751ae1a76912e1d5884a8d18dc59c846eac9fc28bc49d93c6dc90520"
@@ -580,8 +603,8 @@
     },
     {
       "path": "scripts/test-person-continuity.mjs",
-      "bytes": 7228,
-      "sha256": "fe724ef99a19bb8b260b9ccae903740371616cf0f2e520d2a3f1b1d7d7c516b4"
+      "bytes": 14390,
+      "sha256": "b41b6fc97ce43dc2045facc64ef75b97ce92e7e3cf496f458bb9f17b3a993b78"
     },
     {
       "path": "scripts/test-person-recall.mjs",
@@ -600,8 +623,8 @@
     },
     {
       "path": "scripts/test-portable.mjs",
-      "bytes": 2333,
-      "sha256": "6924c112445e52c509323bfde0e3871a26cb49723cb9f793ddb3f4cd334d8724"
+      "bytes": 2369,
+      "sha256": "1878c95919efa38ffa3585fb1435fcc252d8d6a915c0ad4b358369fd2912fc77"
     },
     {
       "path": "scripts/test-preset-local-tools.mjs",
@@ -655,8 +678,8 @@
     },
     {
       "path": "scripts/test-review-offline.mjs",
-      "bytes": 2326,
-      "sha256": "86320bdeb9eb0784f4b66f8b17c863cf128160492f97d967134efb7f13bcbcbe"
+      "bytes": 2362,
+      "sha256": "ff55dd2c22c481284fa030dc9e7e11ed4eaa07630ff46c4d666254d353603f4f"
     },
     {
       "path": "scripts/test-review-regressions.mjs",
@@ -785,8 +808,8 @@
     },
     {
       "path": "SECURITY.md",
-      "bytes": 1302,
-      "sha256": "163120ced9a9deb090fd66598f3916d3e0b08b48b51cae5ae89ff2359e66ed95"
+      "bytes": 1795,
+      "sha256": "243dd198d5d402608ddbac56d1b2490879e41a3fd1267b4c2aecd6f1b4489c1f"
     },
     {
       "path": "src/anime-progress.js",
@@ -805,8 +828,8 @@
     },
     {
       "path": "src/bridge.js",
-      "bytes": 960838,
-      "sha256": "46caeb3c4301ce1a72515d2f3a434cf5497407ead1171a72e10d86a5f93ccb60"
+      "bytes": 962785,
+      "sha256": "c0c0eeeb9b55b02b1ae755e495975cc313f619c63918681ff24f15203c114647"
     },
     {
       "path": "src/chat-expression.js",
@@ -822,6 +845,11 @@
       "path": "src/conversation-access.js",
       "bytes": 3138,
       "sha256": "d3dfa46475cfe2340551df147476e3e50effaca27f9ccb70c549901fa02139cc"
+    },
+    {
+      "path": "src/conversation-evidence.js",
+      "bytes": 6903,
+      "sha256": "f37a9d2d37ac3d6bf73a1ed9892a0bafa87aa0e8116f2ac2717738702a3cd088"
     },
     {
       "path": "src/conversation-style.js",
@@ -885,8 +913,8 @@
     },
     {
       "path": "src/mcp-snowluma-safe.js",
-      "bytes": 101958,
-      "sha256": "2a24ab23ebd57405d8bab543708eedc105af6938b0bedebe9c552cf21251e872"
+      "bytes": 102173,
+      "sha256": "b2dd53c72d232984593165aded2391cc53d56653448c47ed5943e20600ae6bd6"
     },
     {
       "path": "src/mcp-web-search-safe.js",
@@ -910,13 +938,13 @@
     },
     {
       "path": "src/person-continuity.js",
-      "bytes": 16795,
-      "sha256": "971714afab67a8c57eeb8c2ed2dda6652df5ee84fad697fa77d5e61f4f2f2d61"
+      "bytes": 20311,
+      "sha256": "7c2660a8522d7416af44c5f0b6acadf3a2f6544baf40f0de12eb3c7662d9eebb"
     },
     {
       "path": "src/person-recall.js",
-      "bytes": 10786,
-      "sha256": "0e25248921c6a45bdf50694d16900176005b84ba6b712b694837d531cd1fc98d"
+      "bytes": 10906,
+      "sha256": "2a2c67ed2eb7c5cbcbc17a3751a30c3b6394fe4253fe0f2e42b25d74a3743547"
     },
     {
       "path": "src/persona-expression.js",
@@ -1023,7 +1051,5 @@
       "bytes": 81,
       "sha256": "b1f4acb14981dafa922f006d383813e9aa48105fda57eb4e808b494232d8a7ab"
     }
-  ],
-  "hashScope": "git-index-bytes; text normalized by .gitattributes",
-  "validationScope": "local pre-publication checks; remote Actions has separate results"
+  ]
 }

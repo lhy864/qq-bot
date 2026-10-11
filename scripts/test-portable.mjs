@@ -8,6 +8,7 @@ const temp = path.join(root, 'review', 'tmp');
 fs.mkdirSync(temp, { recursive: true });
 const scripts = [
   'test-person-continuity.mjs',
+  'test-conversation-evidence.mjs',
   'test-person-threads.mjs',
   'test-person-recall.mjs',
   'test-console-consistency.mjs',

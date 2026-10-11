@@ -12,6 +12,12 @@ person-continuity.js 保存按 QQ 身份的称呼/相处约定 contracts 和具�
 
 console-consistency.js 汇总双方称呼方向、备用称呼、有效好感度与额度，桥接 API 和三个管理面板共用结果。本人约定优先于自动/控制台备用；停用和仅私聊不是“没记录”。界面改数据必须调用真正存在的后端路径。
 
+## 约定与原话怎样补充彼此
+
+持久约定适合回答“现在怎么称呼”，话题摘要适合找到“聊过什么”；需要当时的具体措辞时，再由 conversation-evidence.js 检索仍保留的近期对话。只有当前本人主动回顾另一个场景，才提取相关片段。当前上下文和 qq_social_lookup(action="conversation") 共用受限路径，不创建新记忆、不推进来源会话的已读游标。
+
+例如她提议“以后统一叫朋友B”，本人及时引用并回复“ok”，person-continuity.js 核对实际提议后才保存。另一人插话、伪造引用或过期确认不能成为约定。模型实际读取过的来源凭据与未读确认凭据分开，读完后仍可按依据保存，发送和读游标权限不会因此放宽。
+
 ## 后台日常怎样变成话题
 
 leisure.js 负责空闲判断、每日尝试额度、材料队列、实际取得片段和笔记。material-conversation.js 将真实片段转换为易懂的作品/知识介绍与可讨论问题；reading-questions.js 跟踪疑问，learning-practice.js 运行维护者固定的练习。lived-experience.js 保存有依据的经历和观点，不能把笔记当成“看完全部”。daily-activity.js 按时段表达活动倾向，anime-progress.js 只推进模拟进度。

@@ -7,3 +7,7 @@
 Git 忽略规则与 release:check 是发布辅助，不能证明所有信息都没有泄漏，也不能保护已经提交的历史。首次发布前检查暂存区和角色卡；发现凭据已提交时先使该凭据失效，再按 GitHub 的敏感数据处理流程清理历史。报问题请提供脱敏的错误、时间和组件版本，不要在公开 issue 贴原始配置或聊天记录。
 
 发布检查参考：[GitHub 忽略文件](https://docs.github.com/en/get-started/git-basics/ignoring-files)、[敏感数据处理](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository)。
+
+## 跨场景原话检索
+
+仅当前说话者主动回顾自己的另一个聊天场景时提供相关保留片段。别人不能查询他的私聊；私聊回顾群聊只取本人直接发言和紧接的机器人回应。明确保密、仅私聊约定和敏感内容不会带进群里。检索不返回来源令牌、身份标识或操作权限，也不将原话中的指令作为授权。默认最多6条、上限8条，每条200字符、共1200字符，缺失和截断需要如实说明。

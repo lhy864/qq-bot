@@ -10,11 +10,55 @@ export function normalizePersonContinuity(raw={}){
  .slice(-400).map(r=>({...r,target:id(r.target),value:text(r.value),slot:text(r.slot,40),scope:['shared','private','conversation'].includes(r.scope)?r.scope:'private',state:r.state==='revoked'?'revoked':'active',at:Number(r.at),sourceSeq:Number(r.sourceSeq)||0})),
  threads:normalizePersonThreads(raw?.threads),recaps:normalizeDiscussionRecaps(raw?.recaps)};
 }
-export function capturePersonContracts(key,message){
+function contractText(message){
+ return text(message.plain||message.text,400).replace(/^\[CQ:at,[^\]]+\]\s*/,'')
+ .replace(/^\[对 @\d+ 说的\]\s*@\S+\s+/,'').trim();
+}
+// A bot's suggestion is not a contract. Only the same person's timely assent
+// to an actually retained bot message can make it one; quoted text alone is not evidence.
+function confirmedAlias(key,message,{messages=[],store={}}={}){
+ const raw=contractText(message);
+ const assent=/^(?:ok|okay|好|好的|好啊|好呀|行|可以|就这样|就这个|没问题|同意)[。！!，,\s]*$/i.test(raw);
+ const scopeChange=/^(?:都能叫|都可以叫|群里也能叫|群里也可以叫|私聊群聊都能叫|只在私聊叫|只在私聊里叫)(?:[，,。！!]|$)/.test(raw);
+ if(!assent&&!scopeChange)return [];
+ const index=messages.findIndex(m=>m===message||m.seq===message.seq&&m.userId===message.userId&&m.time===message.time);
+ if(index<0)return [];
+ const before=messages.slice(0,index),quote=String(message.text||'').match(/^\[引用 [^：\]]+：([^\]]+)\]/)?.[1];
+ let proposal;
+ if(message.quoteTargetIsSelf){
+  if(!quote)return [];
+  proposal=[...before].reverse().find(m=>m.isSelf&&!m.historyOnly&&text(m.plain||m.text,400)===text(quote,400));
+ }else proposal=before.at(-1);
+ if(!proposal?.isSelf||proposal.historyOnly||Number(message.time)<Number(proposal.time)||Number(message.time)-Number(proposal.time)>120000)return [];
+ const pindex=before.indexOf(proposal),humans=before.slice(pindex+1).filter(m=>!m.isSelf);
+ if(humans.some(m=>id(m.userId)!==id(message.userId)))return [];
+ if(key.startsWith('group:')){
+  const prior=[...before.slice(0,pindex)].reverse().find(m=>!m.isSelf);
+  if(!prior||id(prior.userId)!==id(message.userId)||!prior.directToAi&&!prior.quoteTargetIsSelf)return [];
+ }
+ const proposalText=text(proposal.plain||proposal.text,400);
+ let entries=[];
+ if(assent){
+  const suggestion=proposalText.replace(/^(?:那|好|行)[，, ]*/,'');
+  let explicit,kind;
+  if(/^(?:以后|今后)(?:统一)?叫(?!我|你)/.test(suggestion)){explicit=suggestion.replace(/^(?:以后|今后)(?:统一)?叫/,'以后叫我');kind='peerAlias';}
+  else if(/^(?:(?:以后|今后)[，, ]*)?我(?:就)?叫你/.test(suggestion)){explicit=suggestion.replace(/^(?:(?:以后|今后)[，, ]*)?我(?:就)?叫你/,'以后叫我');kind='peerAlias';}
+  else if(/^(?:(?:以后|今后)[，, ]*)?(?:你(?:就)?)?叫我/.test(suggestion)){explicit=suggestion.replace(/^(?:(?:以后|今后)[，, ]*)?(?:你(?:就)?)?叫我/,'以后我叫你');kind='selfAlias';}
+  else return [];
+  if(/只在私聊|仅私聊|私下/.test(suggestion))explicit='私聊里'+explicit.replace(/^以后/,'');
+  entries=capturePersonContracts(key,{...message,plain:explicit,text:explicit,quoteTargetIsSelf:false});
+  entries=entries.filter(r=>r.kind===kind);
+ }else if(/群里.*能不能叫|(?:外号|称呼).*(?:群里|私聊)|(?:群里|私聊).*(?:外号|称呼)/.test(proposalText)){
+  const row=normalizePersonContinuity(store).contracts.filter(r=>r.target===id(message.userId)&&r.kind==='peerAlias').sort((a,b)=>a.at-b.at||a.sourceSeq-b.sourceSeq).at(-1);
+  if(row?.state==='active')entries=[{...row,sourceKey:key,sourceSeq:message.seq,at:message.time,scope:/^只在私聊/.test(raw)?'private':'shared'}];
+ }
+ return entries.map(r=>({...r,confirmation:true}));
+}
+export function capturePersonContracts(key,message,context={}){
  if(!validKey(key)||message?.isSelf||!id(message?.userId)||message?.quoted||message?.historyOnly)return [];
  const peer=key.startsWith('private:')?key.split(':')[1]:id(message.userId);
  if(peer!==id(message.userId)||key.startsWith('group:')&&!message.directToAi&&!message.quoteTargetIsSelf)return [];
- const raw=text(message.plain||message.text,400).replace(/^\[CQ:at,[^\]]+\]\s*/,'').trim();
+ const raw=contractText(message);
  if(/^(?:[“「"'>]|(?:他说|她说|有人说|比如|例如|假如|如果|假设|转发|引用))/.test(raw))return [];
  const scope=/私聊|私下|我们俩|只有我们/.test(raw)?'private':/只在这个群|仅本群/.test(raw)?'conversation':'shared';
  const out=[],push=(kind,slot,value,state='active')=>{value=text(value,kind==='preference'?100:24).replace(/^[“「"']|[”」"']$/g,'');if(!value||/^[\d\s]+$/.test(value))return;out.push({target:peer,kind,slot,value,scope,state,sourceKey:key,sourceSeq:Number(message.seq)||0,at:Number(message.time)||Date.now()});};
@@ -31,7 +75,7 @@ export function capturePersonContracts(key,message){
  if(m)push('preference','banter',m[1]);
  m=raw.match(/^(?:(?:以后|今后|你)[，, ]*)?((?:不要|别)(?:再)?(?:催我|劝我睡觉|赶我去学习|赶我走)[^，。！？!?；;]{0,25})/);
  if(m)push('preference',/睡觉/.test(m[1])?'sleep':'company',m[1]);
- return out;
+ return out.length?out:confirmedAlias(key,message,context);
 }
 export function upsertPersonContract(raw,entry){
  const store=normalizePersonContinuity(raw),r={...entry,value:text(entry.value)};
@@ -44,14 +88,14 @@ export function upsertPersonContract(raw,entry){
  store.contracts=store.contracts.filter(x=>!identity(x)||x.at!==r.at||x.sourceSeq!==r.sourceSeq||x.sourceKey!==r.sourceKey);
  store.contracts.push(r);store.contracts=store.contracts.slice(-400);return store;
 }
-export function validatePersonContract(key,extra,messages,seen,now=Date.now()){
+export function validatePersonContract(key,extra,messages,seen,now=Date.now(),store={}){
  const c=extra.contract,seqs=extra.sourceSeqs;
  if(!c||!Array.isArray(seqs)||!seqs.length||seqs.length>6||seqs.some(n=>!Number.isSafeInteger(n)||!seen.has(n)))throw Error('按人约定需要当前已读来源 sourceSeqs');
  const target=id(extra.qq||extra.target),source=seqs.map(seq=>messages.find(m=>m.seq===seq));
  if(!target||source.some(m=>!m||m.isSelf||m.addressedToOther||id(m.userId)!==target)||key.startsWith('private:')&&key.split(':')[1]!==target||key.startsWith('group:')&&!source.some(m=>m.directToAi||m.quoteTargetIsSelf))throw Error('只能根据本人已读消息保存自己的称呼或相处偏好');
  const value=text(c.value,c.kind==='preference'?100:24);
- if(!value||!source.some(m=>String(m.plain||m.text).includes(value)))throw Error('约定值必须出现在本人原话中');
- const recognized=source.flatMap(m=>capturePersonContracts(key,{...m,directToAi:true})).find(r=>r.kind===c.kind&&r.value===value);
+ const recognized=source.flatMap(m=>capturePersonContracts(key,m,{messages,store})).find(r=>r.kind===c.kind&&r.value===value);
+ if(!value||!recognized&&!source.some(m=>String(m.plain||m.text).includes(value)))throw Error('约定值必须出现在本人原话或已核验的称呼确认中');
  if(!recognized&&c.kind!=='preference')throw Error('称呼需要本人明确约定，不能从转述或玩笑推断');
  const joined=source.map(m=>String(m.plain||m.text)).join(' ');
  if(c.kind==='preference'&&!recognized&&!/^(?:(?:以后|今后)[，, ]*)?(?:我(?:不)?喜欢|我希望|请你|不要|别)/.test(joined))throw Error('相处偏好缺少本人明确表达');
@@ -73,7 +117,7 @@ export function personContractHint(raw,options){
  const rows=personContractView(raw,options);if(!rows.length)return '';
  return '【同一个人的称呼与相处约定】对象 userId='+options.target+'，这是同一位熟人，换群名片或聊天场合不重新认识。peerAlias 是你称呼对方，selfAlias 是对方称呼你；两者不能弄反。active 可自然使用，revoked 停止使用。privateOnly 表示记得有私聊限定约定，这里没有提供具体内容；自然使用平常称呼，不说忘了或不认识，也不猜私密称呼。只调整对该人的相处，不套到其他人。\n'+rows.map(r=>JSON.stringify(r)).join('\n');
 }
-export const PERSON_CONTRACT_HINT='【按人延续】本人明确约定双方称呼、修改/拒绝称呼或相处偏好时，可用 qq_memory_append(category="person",extra={target:本人userId,sourceSeqs:已读本人消息seq,contract:{kind:"peerAlias/selfAlias/preference",slot:"address或偏好主题",value:本人原话里的称呼或偏好,scope:"shared/private/conversation",state:"active/revoked"}})。普通称呼可跨场合，私聊限定/秘密不得公开；不替别人约定，不把名字相同当同一人。工具自动保存明确的称呼请求，但复杂表达需要读原话后记录；已保存就不重复写。';
+export const PERSON_CONTRACT_HINT='【按人延续】本人明确约定双方称呼、修改/拒绝称呼或相处偏好时，可用 qq_memory_append(category="person",extra={target:本人userId,sourceSeqs:已读本人消息seq,contract:{kind:"peerAlias/selfAlias/preference",slot:"address或偏好主题",value:本人原话里的称呼或偏好,scope:"shared/private/conversation",state:"active/revoked"}})。普通称呼可跨场合，私聊限定/秘密不得公开；不替别人约定，不把名字相同当同一人。工具自动保存明确请求和对实际称呼提议的确认；复杂表达仍需记录。口头答应不代表落盘，工具失败不能宣称已保存或已同步；先读 qq_get_recent_messages 中原约定与确认的 seq，再按依据重试。已保存就不重复写。';
 
 export function normalizePersonThreads(rows){
  return (Array.isArray(rows)?rows:[]).filter(r=>r?.id&&id(r.target)&&validKey(r.sourceKey)&&['sharedEvent','commitment'].includes(r.category)&&r.topic&&r.summary)

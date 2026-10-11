@@ -36,10 +36,14 @@ Open the address printed in the terminal. The preview uses synthetic in-memory d
 
 ## Validation and limits
 
-Local isolated engineering tests: **40/40**. Mock console browser checks: **38/38**. The full installed-DSH compatibility suite is **40/41**, with a documented tool-name mismatch. Check repository Actions for actual remote CI results.
+Current local isolated engineering tests: **41/41**. The full installed-DSH compatibility suite is **41/42**, with the existing documented tool-name mismatch. Previous mock console browser checks were **38/38**; this update does not change the console page. Check repository Actions for this commit's remote CI result.
 
 The complete engineering suite also requires Python 3 for actual fixed learning exercises. It uses `QQ_BRIDGE_PYTHON` or `python` from PATH. CI installs Python explicitly; the offline console preview only needs Node.js.
 
 Conversation quality and all external API versions are not universally verified. Anime counters are simulated, and available subtitles do not imply visual video understanding. Private-scope memories stay private. Voice and some profile/space actions need separate configuration and verification.
 
 Runtime state, credentials and real conversations are excluded from this source export. See [SECURITY.md](SECURITY.md) before publishing custom configurations or role cards.
+
+## Latest continuity update
+
+First-party acknowledgement of an actual nickname proposal now persists the agreement. Explicit cross-scene recall can use bounded, relevant retained messages, with identity and privacy checks. See the [implementation and validation notes](docs/updates/2026-10-11-continuity.md).

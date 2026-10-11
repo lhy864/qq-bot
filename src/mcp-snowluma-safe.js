@@ -532,8 +532,8 @@ server.tool(
 
 server.tool(
   'qq_social_lookup',
-  '只读查询：sharedInterests回忆你在各会话已形成、明确公开且有真实公开资料依据的兴趣观点，不搬运其它私聊/群聊原文；friends/groups查询通讯录（完整列表限主人私聊，普通私聊仅对方好友资料）；members只查当前群成员。查到联系人不授予发消息或加好友权限。',
-  {key:z.string(),token:z.string(),action:z.enum(['sharedInterests','friends','groups','members']).optional(),query:z.string().optional().describe('按主题或名字查找；不需要每轮调用'),limit:z.number().int().min(1).max(50).optional()},
+  '只读查询：conversation在同一人主动回顾另一场景具体聊天时，核对该人相关的少量保留原话；不能查询别人的私聊，明确保密内容不在群里提供，不返回来源令牌。sharedInterests回忆明确公开且有资料依据的兴趣观点；friends/groups查询通讯录（完整列表限主人私聊，普通私聊仅对方好友资料）；members只查当前群成员。查询不授予发送或加好友权限。',
+  {key:z.string(),token:z.string(),action:z.enum(['sharedInterests','conversation','friends','groups','members']).optional(),query:z.string().optional().describe('conversation检索词必须出现在本人当前回顾提问里，不填则按本轮提问筛选；其它action按主题或名字查询'),limit:z.number().int().min(1).max(50).optional()},
   async ({key,token,action='sharedInterests',query='',limit=6})=>{
     try {const params=new URLSearchParams({key,action,query,limit:String(limit)});const data=await agentApi('/api/socialV2/lookup?'+params,{headers:{'x-agent-token':token}});
       return {content:[{type:'text',text:serializeModelData(data)}]};}

@@ -50,3 +50,75 @@ test('HTTP contract writing checks actual read sequences and rolls back if durab
  assert.equal((await call({...extra,contract:{...extra.contract,slot:'other'}})).status,400);assert.equal(JSON.stringify(h.socialV2.personContinuity),before);fs.rmdirSync(h.temp+'/state/social-v2.json');fs.writeFileSync(h.temp+'/state/social-v2.json',saved);
  }finally{server.closeAllConnections();await new Promise(r=>server.close(r));}
 }));
+
+const self=(plain,time)=>({plain,text:plain,isSelf:true,time});
+test('a real bot proposal and first-party quoted OK create a durable agreement, bot output alone does not',()=>{
+ const proposal=self('那以后统一叫朋友B，别的都作废',1000);
+ const yes={...msg('ok',2000),quoteTargetIsSelf:true,text:'[引用 小鲸鱼：那以后统一叫朋友B，别的都作废]ok'};
+ assert.deepEqual(capturePersonContracts('private:123',proposal,{messages:[proposal]}),[]);
+ const entries=capturePersonContracts('private:123',yes,{messages:[proposal,yes]});
+ assert.equal(entries[0].value,'朋友B');assert.equal(entries[0].scope,'shared');
+ const extra={target:'123',sourceSeqs:[yes.seq],contract:{kind:'peerAlias',value:'朋友B',scope:'shared'}};
+ assert.equal(validatePersonContract('private:123',extra,[proposal,yes],new Set([yes.seq])).value,'朋友B');
+});
+test('quoted assent rejects fake proposals, unrelated speakers, stale quotes and bot suggestions in the other direction',()=>{
+ const proposal=self('那以后统一叫朋友B，别的都作废',1000),yes={...msg('ok',2000),quoteTargetIsSelf:true,text:'[引用 小鲸鱼：那以后统一叫朋友B，别的都作废]ok'};
+ for(const messages of [[yes],[self('别的问题',1000),yes],[{...proposal,time:1},{...yes,time:200001}],[proposal,msg('哈哈',1500,'789'),yes]]){
+  assert.equal(capturePersonContracts('private:123',messages.at(-1),{messages}).length,0);
+ }
+ const other=self('以后叫我鲸宝',1000),agree=msg('好的',2000);
+ assert.equal(capturePersonContracts('private:123',agree,{messages:[other,agree]})[0].kind,'selfAlias');
+ const secret=self('以后叫我鲸宝，只在私聊叫',1000);
+ assert.equal(capturePersonContracts('private:123',agree,{messages:[secret,agree]})[0].scope,'private');
+});
+test('actual group addressing wrapper is parsed only when addressed to the bot',()=>{
+ const directed={...msg('[对 @999 说的] @小鲸鱼 以后叫我朋友B',2000),directToAi:true};
+ assert.equal(capturePersonContracts('group:456',directed)[0].value,'朋友B');
+ assert.equal(capturePersonContracts('group:456',{...directed,directToAi:false}).length,0);
+});
+test('a later explicit permission can change the scope of the already agreed alias',()=>{
+ let store=saved(msg('私聊里叫我朋友B',1000));const question=self('重新定哪条，是外号本身，还是群里能不能叫',2000);
+ const yes={...msg('都能叫，但你群里还没叫过',3000),quoteTargetIsSelf:true,text:'[引用 小鲸鱼：重新定哪条，是外号本身，还是群里能不能叫]都能叫，但你群里还没叫过'};
+ const r=capturePersonContracts('private:123',yes,{messages:[question,yes],store})[0];
+ assert.equal(r.value,'朋友B');assert.equal(r.scope,'shared');store=upsertPersonContract(store,r);assert.equal(view(store)[0].value,'朋友B');
+ assert.equal(capturePersonContracts('private:123',yes,{messages:[question,yes]}).length,0);
+});
+test('fresh startup reconstructs a retained quoted agreement and suppresses the old nickname in all runtime and console projections',()=>fixture(async h=>{
+ const key='private:123';h.appendSocialV2Message(key,'朋友','我想换个称呼','我想换个称呼',false,false,'1',[],'123');
+ h.recordSentMessagesV2(key,['那以后统一叫朋友B，别的都作废']);
+ h.appendSocialV2Message(key,'朋友','[引用 小鲸鱼：那以后统一叫朋友B，别的都作废]ok','ok',true,false,'2',[],'123');
+ const saved=JSON.parse(fs.readFileSync(h.temp+'/state/social-v2.json','utf8'));assert.equal(saved.personContinuity.contracts[0].value,'朋友B');
+ // Reproduce a pre-upgrade file containing the real conversation but no contracts.
+ saved.personContinuity.contracts=[];
+ await fixture(async fresh=>{
+  fresh.loadMemes().byTarget['123']=[{kind:'nickname',text:'旧外号'}];fresh.personOf('123','朋友',true);
+  fresh.appendSocialV2Message('group:456','换过群名片','我外号现在叫什么','我外号现在叫什么',false,false,'3',[],'123',[],{directToAi:true});
+  const st=fresh.getSocialV2State('group:456');assert.match(fresh.currentConversationV2('group:456',st,st.unread).hint,/朋友B/);
+  assert.equal(fresh.memeNicknameFor('123','朋友',{key:'group:456'}),'朋友B');
+  assert.doesNotMatch(fresh.memesMoodText('group:456'),/旧外号/);
+  const server=fresh.startConsoleServer();await new Promise(r=>server.once('listening',r));
+  try{for(const route of ['/api/socialV2/people','/api/socialV2/affinity','/api/debug/selftest']){
+   const response=await fetch('http://127.0.0.1:'+server.address().port+route,{headers:{'x-console-token':'fixture-console-token','content-type':'application/json'},...(route.endsWith('selftest')?{method:'POST',body:JSON.stringify({memes:'get'})}:{})});
+   const body=await response.json();assert.equal(response.status,200);const row=body.people?.find(x=>x.qq==='123')||body.list?.find(x=>x.qq==='123')||body.nicknames?.find(x=>x.target==='123');
+   assert.equal((row.nicknameInfo||row).current.text,'朋友B');
+  }}finally{server.closeAllConnections();await new Promise(r=>server.close(r));}
+ },{savedSocialState:saved});
+}));
+test('actual HTTP recent-message reads authorize memory after mark-read without acknowledging unoffered new messages',()=>fixture(async h=>{
+ h.cfg.socialV2.wake={preSleepWaitEnabled:false};
+ const key='private:123';h.appendSocialV2Message(key,'朋友','我希望你认真听我说','我希望你认真听我说',false,false,'1',[],'123');
+ const st=h.getSocialV2State(key),seq=st.lastUnreadSeq,server=h.startConsoleServer();await new Promise(r=>server.once('listening',r));
+ const headers={'x-console-token':'fixture-console-token','x-agent-call':'1','x-agent-token':st.agentToken,'content-type':'application/json'};
+ const call=async(route,body)=>{const r=await fetch('http://127.0.0.1:'+server.address().port+route,{headers,...(body?{method:'POST',body:JSON.stringify(body)}:{})});return {status:r.status,body:await r.json()};};
+ try{
+  assert.equal((await call('/api/socialV2/recent?key='+key)).status,200);
+  assert.equal((await call('/api/socialV2/mark-read',{key,throughSeq:seq})).status,200);assert.equal(st.modelSeenSeqs.size,0);
+  h.appendSocialV2Message(key,'朋友','我希望你别催我','我希望你别催我',false,false,'2',[],'123');const next=st.lastUnreadSeq;
+  const extra={target:'123',sourceSeqs:[seq],contract:{kind:'preference',slot:'attention',value:'认真听我说'}};
+  assert.equal((await call('/api/socialV2/memory-append',{key,category:'person',content:'认真听我说',extra})).status,200);
+  assert.equal((await call('/api/socialV2/memory-append',{key,category:'person',content:'别催我',extra:{...extra,sourceSeqs:[next],contract:{kind:'preference',value:'别催我'}}})).status,400);
+  assert.equal((await call('/api/socialV2/mark-read',{key,throughSeq:next})).status,400);
+  assert.equal((await call('/api/socialV2/recent?key='+key)).status,200);
+  assert.equal((await call('/api/socialV2/memory-append',{key,category:'person',content:'别催我',extra:{...extra,sourceSeqs:[next],contract:{kind:'preference',value:'别催我'}}})).status,200);
+ }finally{server.closeAllConnections();await new Promise(r=>server.close(r));}
+}));

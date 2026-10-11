@@ -22,6 +22,7 @@ import * as stateAcl from '../src/state-acl.mjs';
 import * as continuity from '../src/social-continuity.js';
 import * as personContinuity from '../src/person-continuity.js';
 import * as personRecall from '../src/person-recall.js';
+import * as conversationEvidence from '../src/conversation-evidence.js';
 import * as consoleConsistency from '../src/console-consistency.js';
 import * as selfActions from '../src/self-actions.js';
 import * as livedExperience from '../src/lived-experience.js';
@@ -136,7 +137,7 @@ export async function bridgeHarness({ config = {}, savedState, savedSocialState,
     importHistoryV2, recoverConversationV2, historyRecoveryAllowedV2, queueHistoryRecoveryV2, historyRecoveryFlights,
     relationOf, personOf, autoTierOf, affinityClassify,affinityCompute,affinityAdjust,memeNicknameFor,memesMoodText,memeScanRecent,consoleNicknameV2,loadMemes, addresseeScore, sendMessagesV2,
     buildWakePromptV2, buildWakeSnapshotV2, sendWakePromptV2, socialV2, groupRehearsals, finishGroupRehearsal,
-    busyWatchdogTick, sessionResetTick, saveSocialV2State, appendMemoryV2, personContractsHintV2, observePersonContractsV2, personContinuityStoreV2,personThreadsProjectionV2,personThreadsHintV2,updatePersonContinuityV2,observeDiscussionV2,personRecallStateV2,personRecallHintV2,
+    busyWatchdogTick, sessionResetTick, saveSocialV2State, appendMemoryV2, personContractsHintV2, observePersonContractsV2, personContinuityStoreV2,personThreadsProjectionV2,personThreadsHintV2,updatePersonContinuityV2,observeDiscussionV2,personRecallStateV2,personRecallHintV2,personConversationEvidenceV2,personConversationEvidenceHintV2,
     reviewTick, reviewSnapshot, selfActionsOf, qzonePublish, selfProfileWrite, animeMoodText, animeAutoAdvanceToday, animeAutomationStatusV2, animeCatalog, loadAnime, hasExplicitEndV2, dailyStateMoodText, qzoneMaterialText, livedContextV2, currentConversationV2, affinityTouchByMessage, affinityNeglect, patienceOnIncoming, leisureOf, leisureEligibility, leisureJournalFor,
     proactiveCheckTick, proactiveActivityV2, scheduleProactiveCheckV2, pendingWakeKeys, v2TurnStartAt, collectors,
     pumpMux, rebuildInFlightCollector, isConversationBusyV2,
@@ -165,7 +166,7 @@ export async function bridgeHarness({ config = {}, savedState, savedSocialState,
     SnowLumaWebSocketClient: FakeBot, text: (s) => s,
     discoverDshLaunchToken: () => '', unwrap, createTurnCollector,
     ...markdown, ...sensitive, ...wait, ...safeFetch, ...forward, ...slang, ...sticker,
-    ...modelPrices, ...tokenLedger, ...voiceLib, ...stateAcl, ...continuity, ...personContinuity, ...personRecall, ...consoleConsistency, ...expression, ...shareCard, ...roleCard, ...selfActions, ...dailyReview, ...livedExperience, ...leisure, ...biliObservation, ...messageRecovery, ...conversationStyle, ...proactiveActivity, ...animeProgress, ...chatExpression, ...conversationAccess,
+    ...modelPrices, ...tokenLedger, ...voiceLib, ...stateAcl, ...continuity, ...personContinuity, ...personRecall, ...conversationEvidence, ...consoleConsistency, ...expression, ...shareCard, ...roleCard, ...selfActions, ...dailyReview, ...livedExperience, ...leisure, ...biliObservation, ...messageRecovery, ...conversationStyle, ...proactiveActivity, ...animeProgress, ...chatExpression, ...conversationAccess,
     // ACL 收紧会 spawn icacls 去改**真实**文件系统；测试不该做这件事（同理见下面的
     // cleanupTemp / processAudioVolume 桩）。桩成成功，让 hardenStateDirAcl 走正常分支。
     hardenDir: () => ({ ok: true, detail: 'stub' }),

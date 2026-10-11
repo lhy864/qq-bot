@@ -27,6 +27,7 @@ import { reviewConversation, reviewHint, assertPublicSelfText } from './daily-re
 import { CONTINUITY_CATEGORIES, normalizeContinuity, appendContinuity, updateContinuity, removeContinuity, formatContinuity, CONTINUITY_HINT } from './social-continuity.js';
 import {normalizePersonContinuity,capturePersonContracts,upsertPersonContract,validatePersonContract,personContractView,personContractHint,PERSON_CONTRACT_HINT,upsertPersonThread,personThreadProjection,personThreadHint,PERSON_THREAD_HINT} from './person-continuity.js';
 import {discussionTopics,captureDiscussionRecaps,discussionRecall,discussionRecallHint} from './person-recall.js';
+import {conversationEvidence,conversationEvidenceHint} from './conversation-evidence.js';
 import {affinityBreakdown,nicknameSnapshot} from './console-consistency.js';
 import { normalizeExperience, addAcquiredSource, reflectExperience, selectExperiences, experienceContext, publicExperiences, communicationHint, activityContext, EXPERIENCE_POLICY, OPINION_RETENTION_HINT, SELF_HISTORY_HINT } from './lived-experience.js';
 import { acquireBiliObservation, discoverBili } from './bili-observation.js';
@@ -2910,6 +2911,7 @@ async function main() {
       rememberAgentToken(key, st.agentToken);
       st.bootstrapSent = false;
       st.modelSeenSeqs = new Set();
+      st.memorySeenSeqs = new Set();
     }
     saveState();
     saveSocialV2State();
@@ -3291,6 +3293,7 @@ async function main() {
         rememberAgentToken(key, retained.agentToken);
         retained.bootstrapSent = false;
         retained.modelSeenSeqs = new Set();
+        retained.memorySeenSeqs = new Set();
         retained.msgSinceReset = 0;
         if (summary) appendMemoryV2(retained, 'activeTopic', summary, {});
       } else {
@@ -8045,6 +8048,9 @@ async function main() {
           const allowed=()=>agentTokenOk(key,token)&&v2SessionAllowed(key)&&v2ToolEnabled('socialLookup')&&socialV2.conversations.get(key)===st&&state.sessions[key]===sid&&bot.url===connection;
           const action=url.searchParams.get('action')||'sharedInterests',query=url.searchParams.get('query')||'',limit=url.searchParams.get('limit');
           try {
+            if(action==='conversation'){
+              sendJson({ok:true,...personConversationEvidenceV2(key,st,{query,limit})});return;
+            }
             if(action==='sharedInterests'){
               const journals=EPHEMERAL_GROUP_KEYS.has(key)?[st.experience]:[leisureJournalFor(key),...[...socialV2.conversations].filter(([k])=>!EPHEMERAL_GROUP_KEYS.has(k)).map(([,s])=>s.experience)];
               sendJson({ok:true,...sharedConversationRecall(journals,{query,limit})});return;
@@ -8175,7 +8181,8 @@ async function main() {
   if (category === 'person') {
     if(extra.contract){
       const st=getSocialV2State(key),previous=personContinuityStoreV2(key);
-      try{const entry=validatePersonContract(key,extra,privateTestRecent(key,st),st.modelSeenSeqs);
+      try{const seen=new Set([...st.modelSeenSeqs||[],...st.memorySeenSeqs||[]]);
+        const entry=validatePersonContract(key,extra,privateTestRecent(key,st),seen,Date.now(),previous);
         entry.value=redactKnownTokensOnly(entry.value);setPersonContinuityV2(key,upsertPersonContract(previous,entry));
         try{saveSocialV2State({strict:true});}catch(error){setPersonContinuityV2(key,previous);throw error;}
         sendJson({ok:true,key,category,contract:personContractView(personContinuityStoreV2(key),{...personContinuityOptionsV2(key,st),target:entry.target})});
@@ -12322,6 +12329,11 @@ ${affRecentLine}· 今天已加 ${snap.gainedToday}/${dayCap} 分。每轮都判
   }
 
   function noteModelMessagesV2(st, messages) {
+    // Memory evidence survives acknowledgement, but only for messages actually
+    // returned to this process's model and still retained in this conversation.
+    const retained=new Set([...st.recentMessages||[],...st.unread].filter(m=>!m.isSelf).map(m=>m.seq));
+    st.memorySeenSeqs=new Set([...st.memorySeenSeqs||[]].filter(seq=>retained.has(seq)));
+    for(const msg of messages)if(!msg.isSelf&&Number.isSafeInteger(msg.seq)&&msg.seq>0&&retained.has(msg.seq))st.memorySeenSeqs.add(msg.seq);
     // Bound receipts by the actual unread buffer; historical/self messages need no receipt.
     const unread = new Set(st.unread.map((m) => m.seq));
     st.modelSeenSeqs = new Set([...st.modelSeenSeqs || []].filter((seq) => unread.has(seq)));
@@ -12413,7 +12425,7 @@ ${affRecentLine}· 今天已加 ${snap.gainedToday}/${dayCap} 分。每轮都判
     const current=expressionStateV2(key,{...st,recentMessages:recent,unread:st.unread.filter(m=>seen.has(m.seq))});
     const turn=conversationTurnHint(current,messages);
     const move=conversationMove(current,{key:groupRehearsals.get(key)?.privateScene?'private:fixture':key,stickers:stickerEnabled()});
-    return {...turn,participation:move.participation||null,hint:turn.hint+'\n'+move.text+'\n'+personRecallHintV2(key,current)+'\n'+personThreadsHintV2(key,current)+'\n'+leisureHintFor(key,String(replyFocus(current)?.plain||replyFocus(current)?.text||''),{invite:move.participation==='invite',recentMessages:current.recentMessages,target:replyFocus(current)?.userId,now:Date.now()}),
+    return {...turn,participation:move.participation||null,hint:turn.hint+'\n'+move.text+'\n'+personContractsHintV2(key,current)+'\n'+personRecallHintV2(key,current)+'\n'+personThreadsHintV2(key,current)+'\n'+personConversationEvidenceHintV2(key,current)+'\n'+leisureHintFor(key,String(replyFocus(current)?.plain||replyFocus(current)?.text||''),{invite:move.participation==='invite',recentMessages:current.recentMessages,target:replyFocus(current)?.userId,now:Date.now()}),
       expressionHint:v2ToolEnabled('sendMessage')&&(!EPHEMERAL_GROUP_KEYS.has(key)||groupRehearsals.get(key)?.styleFixtures)?chatExpressionHint(current,{catalog:faceCatalogV2(),stickers:stickerEnabled()}):''};
   }
 
@@ -12430,7 +12442,7 @@ ${affRecentLine}· 今天已加 ${snap.gainedToday}/${dayCap} 分。每轮都判
     const rehearsal=groupRehearsals.get(key);
     const move=conversationMove(expressionStateV2(key,{...st,recentMessages:recent}),{key,stickers:stickerEnabled()&&(!EPHEMERAL_GROUP_KEYS.has(key)||rehearsal?.styleFixtures===true)});
     const scoreHint=rehearsal?.affinity!==undefined?'【模拟关系指标】本批模拟角色的好感度都为 '+rehearsal.affinity+'/100；具体相处方式仍看各人的经历与边界。\n':'';
-    return recoveryHint(st)+personContractsHintV2(key,st)+'\n'+personThreadsHintV2(key,st,reason)+'\n'+personRecallHintV2(key,st,reason)+'\n'+EXPERIENCE_POLICY+'\n'+SELF_HISTORY_HINT+'\n'+OPINION_RETENTION_HINT+'\n'+scoreHint+activity+'\n'+communicationHint({energy,interested})+'\n'+experienceContext(merged,{text,target,limit:4})+'\n'
+    return recoveryHint(st)+personContractsHintV2(key,st)+'\n'+personThreadsHintV2(key,st,reason)+'\n'+personRecallHintV2(key,st,reason)+'\n'+personConversationEvidenceHintV2(key,st,{reason})+'\n'+EXPERIENCE_POLICY+'\n'+SELF_HISTORY_HINT+'\n'+OPINION_RETENTION_HINT+'\n'+scoreHint+activity+'\n'+communicationHint({energy,interested})+'\n'+experienceContext(merged,{text,target,limit:4})+'\n'
       +leisureHintFor(key,text,{invite:move.participation==='invite',recentMessages:recent,target:focus.userId,now:Date.now()})+'\n'+CONVERSATION_BASE+'\n'+move.text+'\n'
       +((!EPHEMERAL_GROUP_KEYS.has(key)||groupRehearsals.get(key)?.styleFixtures===true)&&v2ToolEnabled('sendMessage')?chatExpressionHint(expressionStateV2(key,{...st,recentMessages:recent}),{catalog:faceCatalogV2(),stickers:stickerEnabled()}):'')+'\n';
   }
@@ -12451,13 +12463,22 @@ ${affRecentLine}· 今天已加 ${snap.gainedToday}/${dayCap} 分。每轮都判
   }
   function observePersonContractsV2(key,msg) {
     if(msg.addressedToOther||cfg.socialV2?.continuity?.enabled===false)return;
-    const entries=capturePersonContracts(key,msg);if(!entries.length)return;
+    const entries=capturePersonContracts(key,msg,{messages:privateTestRecent(key,getSocialV2State(key)),store:personContinuityStoreV2(key)});if(!entries.length)return;
     let store=personContinuityStoreV2(key);for(const r of entries)store=upsertPersonContract(store,{...r,value:redactKnownTokensOnly(r.value)});
     setPersonContinuityV2(key,store);
   }
   function personContractsHintV2(key,st){
     if(cfg.socialV2?.continuity?.enabled===false)return '';
     return personContractHint(personContinuityStoreV2(key),personContinuityOptionsV2(key,st));
+  }
+  function personConversationEvidenceV2(key,st,options={}){
+    if(cfg.socialV2?.continuity?.enabled===false||!v2ToolEnabled('socialLookup')||EPHEMERAL_GROUP_KEYS.has(key)||privateDialogueTests.has(key))return {requested:false,status:'not_requested',messages:[]};
+    const store=personContinuityStoreV2(key);
+    return conversationEvidence({...personContinuityOptionsV2(key,st),messages:privateTestRecent(key,st),conversations:[...socialV2.conversations].filter(([k])=>!EPHEMERAL_GROUP_KEYS.has(k)),
+      contracts:store.contracts,threads:store.threads,recaps:store.recaps,topics:discussionTopicsV2(),redact:redactKnownTokensOnly,...options});
+  }
+  function personConversationEvidenceHintV2(key,st,options={}){
+    return conversationEvidenceHint(personConversationEvidenceV2(key,st,options));
   }
   function personRecallOptionsV2(key,st,reason='') {
     const threads=personContinuityStoreV2(key).threads.filter(row=>{

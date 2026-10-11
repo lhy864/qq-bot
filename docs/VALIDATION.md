@@ -12,7 +12,7 @@
 
 ## 怎样理解测试
 
-npm run test:portable 运行40组隔离工程测试，刻意不代替安装版本工具名对账。npm run test:review 还运行该兼容性检查；本机完整结果为40/41。工具名是否覆盖所有真实注册能力，需要结合目标 DSH 安装及运行时检查。
+npm run test:portable 当前运行41组隔离工程测试，刻意不代替安装版本工具名对账。npm run test:review 还运行该兼容性检查；本轮正式目录完整结果为41/42。工具名是否覆盖所有真实注册能力，需要结合目标 DSH 安装及运行时检查。
 
 npm run test:console-ui 需要自行安装 Playwright/Chromium，或通过 PLAYWRIGHT_MODULE 与 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH 指定可用路径；页面连模拟服务，38项检查覆盖交互契约、异常/转义、导航、刷新及编辑。Mock 浏览器检查之外，新增测试使用真正桥接 HTTP API 验证外号、分数与身份隔离；部署后也需要只读核对正式三个面板。
 
@@ -27,3 +27,11 @@ npm run test:console-ui 需要自行安装 Playwright/Chromium，或通过 PLAYW
 两组实际学习练习测试需要 Python 3，通过 QQ_BRIDGE_PYTHON 或 PATH 选择解释器，不依赖开发机的固定安装路径。CI明确准备 Python；实际执行、缺失解释器、超时和结果落盘的检查保留。离线预览不需要 Python。工作流的 Python 环境配置参考 [setup-python 官方说明](https://github.com/actions/setup-python)。
 
 发布检查直接读取暂存区，能够发现“只改工作区而没更新暂存区”的残留假Cookie；临时仓库拦截验证已通过。通用扫描不涵盖所有私密自然语言，首次发布仍要人工检查角色卡。CI配置参考 [checkout](https://github.com/actions/checkout) 和 [setup-node](https://github.com/actions/setup-node) 的官方说明。
+
+## 本轮称呼确认与原话核验
+
+新增针对确认时序、群聊 @ 包装、重新读取后保存、身份隔离、明确保密、检索范围及截断的测试。正式目录36个顶层针对测试通过，Token economy 脚本内部另有36项场景；完整离线回归41/42组，唯一失败仍是上文列出的三个安装环境工具名兼容检查。四轮实际 DSH 模型使用虚构身份，核验全新上下文称呼、按原话接续与保密边界；本轮未发送真实QQ验收消息。
+
+源码整理副本需另行执行41组 portable 测试与暂存区隐私扫描，结果以 RELEASE-MANIFEST.json 为准。之前40组、38项浏览器和依赖审查为上一版验收；本轮没有修改控制台页面、依赖或CI环境，不将旧浏览器结果冒充新增检索的浏览器验收。
+
+本轮源码整理副本实际执行41/41组 portable 测试通过；暂存区通用扫描和已知本地凭据/身份检查无命中，源码按换行及末尾空格规范化后与正式版本一致。远端Actions需按本次提交单独核对。
