@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-10-11T04:04:29.617Z",
+  "createdAt": "2026-10-11T04:07:23.556Z",
   "sourceType": "first-party-whitelist-export",
   "privateConfigIncluded": false,
   "privateStateIncluded": false,
@@ -20,8 +20,8 @@
     },
     {
       "path": ".github/workflows/ci.yml",
-      "bytes": 506,
-      "sha256": "b6f47fdc750a0ec1342e578a08acb509cf145cae06d8c8849d78d9d13ffbf3fa"
+      "bytes": 591,
+      "sha256": "1c57ea19f84a8f614db0d1458be9235f93c6536b242bec21cf4bfc123231452f"
     },
     {
       "path": ".gitignore",
@@ -75,8 +75,8 @@
     },
     {
       "path": "docs/VALIDATION.md",
-      "bytes": 3648,
-      "sha256": "0ddf483d75d9c3397873392f43369d2f6ab5892947f5bce8c2e3aa738d55d0af"
+      "bytes": 4057,
+      "sha256": "bc91e2f597d191e050d9905b294f6ddcd69b546489a1ce459971d5669997f44e"
     },
     {
       "path": "dsh/agent-presets/qq-chat-v2/agent.cordis.yml",
@@ -165,13 +165,13 @@
     },
     {
       "path": "README.en.md",
-      "bytes": 2218,
-      "sha256": "366f79e6c2a3d00440cb1c6ee27a238dfb6c43b2a1561afd64ae706b8faf37ab"
+      "bytes": 2439,
+      "sha256": "efbbf9bbb9024d880ae90c8bde488d9747e6d011247c136d1de87c056d5e39ca"
     },
     {
       "path": "README.md",
-      "bytes": 7988,
-      "sha256": "09f156bf2551c898ee23eb45f39b083d0319c252587418e9570a4a98a1bc29bd"
+      "bytes": 8264,
+      "sha256": "f9dce919d8b5c3d26eaaebfc400f4c87c78b6bf0f7a7b5fc6b716a9ebc12aac6"
     },
     {
       "path": "robot-runtime.example.json",
@@ -490,13 +490,13 @@
     },
     {
       "path": "scripts/test-learning-practice.mjs",
-      "bytes": 2934,
-      "sha256": "c4c2f84d0ef18026c13236ab4019590ac939f06c832fb6f9044db8a16da825b5"
+      "bytes": 2918,
+      "sha256": "44d3409bfffa15e85571e5c1b855f854df5964b2cf1efddf1f002f32b783ea9c"
     },
     {
       "path": "scripts/test-leisure-activities.mjs",
-      "bytes": 8092,
-      "sha256": "538a8ade3090324e23c0f082b6adb59f4cba8428ae5fc83d08b958db39807b1f"
+      "bytes": 8076,
+      "sha256": "259e6f16c6e96a585815f59c7af4f71454089c2517232b2d962453fd1c2d6992"
     },
     {
       "path": "scripts/test-leisure.mjs",

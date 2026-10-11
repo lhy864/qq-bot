@@ -125,6 +125,8 @@ npm run release:check
 npm run test:portable
 ```
 
+完整隔离工程测试还需要 **Python 3**，用于实际运行固定的学习练习。默认从 PATH 找到 `python`；也可以通过环境变量 `QQ_BRIDGE_PYTHON` 指定解释器路径。GitHub CI 会准备 Node.js 和 Python；离线控制台预览仅需 Node.js。
+
 本轮本地验收：**40 / 40 组隔离工程测试**、**38 / 38 项模拟控制台浏览器检查**通过。完整安装版本检查为 **40 / 41**，存在已记录的 DSH 工具名对账问题；这些结果不能代替全部真实聊天和外部服务验收。远端 CI 的实际结果请查看仓库 **Actions**。
 
 <details>

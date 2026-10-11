@@ -13,6 +13,9 @@ jobs:
         with:
           node-version: '24'
           cache: npm
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
       - run: npm ci --ignore-scripts --legacy-peer-deps
       - run: node scripts/patch-snowluma-sdk.mjs
       - run: npm run release:check

@@ -22,6 +22,8 @@ npm run test:console-ui 需要自行安装 Playwright/Chromium，或通过 PLAYW
 
 ## 整理副本的实际验收
 
-全新安装后40/40组隔离工程测试通过；整理副本控制台38/38项浏览器检查通过；这轮修正针对测试36/36通过。正式运行的6个人物在三个面板一致，MCP工具架构45项读取成功，没有给真实QQ发送验收消息。公开副本 npm audit 为0项已知漏洞。GitHub CI工作流已准备，尚未在远端运行。
+全新安装后40/40组隔离工程测试通过；整理副本控制台38/38项浏览器检查通过；这轮修正针对测试36/36通过。正式运行的6个人物在三个面板一致，MCP工具架构45项读取成功，没有给真实QQ发送验收消息。源码整理副本 npm audit 为0项已知漏洞。GitHub CI已经开始运行，具体提交的远端结果见仓库 Actions。
+
+两组实际学习练习测试需要 Python 3，通过 QQ_BRIDGE_PYTHON 或 PATH 选择解释器，不依赖开发机的固定安装路径。CI明确准备 Python；实际执行、缺失解释器、超时和结果落盘的检查保留。离线预览不需要 Python。工作流的 Python 环境配置参考 [setup-python 官方说明](https://github.com/actions/setup-python)。
 
 发布检查直接读取暂存区，能够发现“只改工作区而没更新暂存区”的残留假Cookie；临时仓库拦截验证已通过。通用扫描不涵盖所有私密自然语言，首次发布仍要人工检查角色卡。CI配置参考 [checkout](https://github.com/actions/checkout) 和 [setup-node](https://github.com/actions/setup-node) 的官方说明。
